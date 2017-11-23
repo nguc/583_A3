@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cereal Obesity Poverty</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">     
+    <style>  
+
+      body { 
+        font-family: 'Raleway', sans-serif;
+      }  
+
+      .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+      } 
+
+      .series-label { 
+        font-size: 10pt;
+      }  
+      
+    </style>
+  </head>
+  <body>
+    <script> 
+      // Create main div
+      var main = d3.select("body").append("div"); 
+
+      // Line chart dimensions
+      var margin = {top: 20, right: 220, bottom: 30, left: 50};
+      var width = 900 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
+
+      // Line chart content settings 
+      //var defaultState = "AL"   /// Change to default year
+      var defaultYear = "2011";
+      var defaultCategory = "GEN";
+
+      // Create dropdown
+      var select = main.append('select')  
+        .attr('id', 'dropdown')
+        .on('change',onDropdownChange);
+
+      // Create line chart line chart SVG frame
+      var lineChartSvg = main.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Configure the x, y and z ranges 
+      var x = d3.scale.linear()
+        .range([0, width]);
+      var y = d3.scale.linear()
+        .range([height, 0]);
+      var color = d3.scale.category10(); 
+
+      // Configure the x and y axis 
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")  
+        .ticks(51)
+        .tickFormat(d3.format("d")); 
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(d3.format("d"))
+        .orient("left"); 
+
+      // Configure the line 
+      var line = d3.svg.line()
+        .interpolate("basis")
+        .x(function(d) { return x(d.YearStart); }) // change to state?
+        .y(function(d) { return y(d.Data_Value); });
+
+      // Event handler for the selecting an item from the category dropdown
+      function onDropdownChange() {  
+        // Delete the old chart
+        lineChartSvg.selectAll("*").remove();
+
+        // Get the behavior selected and process it
+        var selection = d3.select("#dropdown").node().value; 
+        defaultCategory = selection;  
+
+        // Render the new food group
+        d3.csv("obesity_survey_multiyear.csv", render); 
+      }
+
+      // Parses and groups data into the appropriate format
+      function parseData(year, category, data){
+      /* 
+      function parseData(state, category, data) {   <-- old function parameters
+        // Filter for state       
+        filteredData = data.filter(function(d) {  
+          return (d.LocationAbbr == state) && (d.StratificationCategoryId1 == category)  
+        });  
+      */
+        // Filter by year
+        filteredData = data.filter(function(d){
+          return (d.YearStart == year) && (d.StratificationCategoryId1 == category)
+          });
+
+        // Group by stratification IDs 
+        groupedData = d3.nest().key(function(d){  
+          return d.Stratification1  
+        }).entries(filteredData);
+
+        return groupedData;
+      }
+
+      function getStates(data){
+          var states = [51];
+          for (var i = 0; i < 52; i++)
+          {
+            states[i] = data[i].LocationAbbr;
+          }
+          return states;
+      }
+
+      // Returns the full name for a stratification category ID
+      function getCategoryName(id) { 
+          switch(id) { 
+            case "GEN": 
+              return "Gender"; 
+            case "INC": 
+              return "Income"; 
+            case "AGEYR": 
+              return "Age" 
+            case "EDU": 
+              return "Education"; 
+            case "RACE": 
+              return "Race"; 
+            case "OVR": 
+              return "Overall";
+          }
+      }
+
+      // Render and create the chart
+      function render(data, states){   
+        // Parse and format data
+        //var parsedData = parseData(defaultState, defaultCategory, data);
+        var parsedData = parseData(defaultYear, defaultCategory, data);
+
+        // Set the domain for x, y and z 
+        color.domain(parsedData.map(function(d){ d.key }));
+        
+        //x.domain([2011, 2015]);
+        x.domain(states);
+
+        y.domain([ 
+          d3.min(parsedData, function(c) { return d3.min(c.values, function(v) { return +v.Data_Value; }); }),
+          d3.max(parsedData, function(c) { return d3.max(c.values, function(v) { return +v.Data_Value; }); })
+        ]);  
+        //y.domain([ 0, 100 ]);
+
+        // Create x-axis
+        lineChartSvg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+        // Create y-axis
+        lineChartSvg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Obesity (%)");
+
+        // Load data
+        var strat = lineChartSvg.selectAll(".strat")
+          .data(parsedData)
+          .enter().append("g")
+          .attr("class", "strat");
+
+        // Create lines
+        strat.append("path")
+          .attr("class", "line")
+          .attr("d", function(d) { return line(d.values); })
+          .style("stroke", function(d) { return color(d.key); });
+
+        // Add labels to each line
+        strat.append("text")
+          .datum(function(d) { return { key: d.key, value: d.values[d.values.length - 1]}; })
+          .attr("transform", function(d) { return "translate(" + x(d.value.YearStart) + "," + y(d.value.Data_Value) + ")"; })
+          .attr("x", 3)
+          .attr("dy", ".35em")
+          .attr("class", "series-label")
+          .text(function(d) { return d.key; });
+      }  
+     
+
+      // Starting method. Read the csv
+        d3.csv("obesity_survey_multiyear.csv", function(data) {
+          // get states abbr
+          var states = getStates(data); 
+          // Populate dropdown
+          d3.select("#dropdown").selectAll("option")
+            .data(d3.map(data, function(d){return d.StratificationCategoryId1;}).keys())
+            .enter()
+            .append("option")
+            .text(function(d){ return getCategoryName(d); })
+            .attr("value",function(d){return d;}); // TODO: Get full names for strat cat IDs
+
+          render(data, states);
+        });  
+  
+        
+
+    </script>
+  </body>
+</html>
