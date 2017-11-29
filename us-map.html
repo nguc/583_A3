@@ -98,8 +98,6 @@
           // Grab State Name
           var dataState = data[i].State;
 
-          // Label states with code
-
           // Grab data value 
           var dataValue = +data[i].Obese;
           console.log(dataValue);
@@ -139,10 +137,36 @@
             }
           });
            
-        // Map the cities I have lived in!
-        d3.csv("favorite_cereal.csv", function(data) {
+        // Find data for each state's fave cereal and get the cereal nutritional facts
+        d3.csv("favorite_cereal.csv", function(fData) {
+           d3.csv("cereal.csv", function(cData) {
 
-          svg.selectAll("circle")
+          for (var i = 0; i < fData.length; i++){
+            for (var j = 0; j < cData.length; j++){
+               // grab state name
+              var stateCereal = fData[i].LocationDesc;
+              // grab cereal name
+              var cerealName = fData[i].Favourite;
+              console.log("state: " + stateCereal + " Favourite: " + cerealName);
+              // grab cereal info if it matches favourite
+              if (fData[i].Favourite == cData[j].Brand){
+                console.log(cData[j]);
+                break;
+              }
+            }
+          }
+
+          // make a circle graph for the cereal macros (Fats, carbs, protein)
+          var calories;
+          var fats;
+          var carbs;
+          var prot;
+          var fatsPercent;
+          var carbsPercent;
+          var protPercent;
+
+
+/*          svg.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
@@ -174,7 +198,8 @@
                 div.transition()        
                    .duration(500)      
                    .style("opacity", 0);   
-            });
+            }); */
+          })
         });  
                 
         // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852

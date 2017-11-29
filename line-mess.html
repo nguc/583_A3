@@ -32,16 +32,23 @@
   <body>
     <script> 
       // Create main div
-      var main = d3.select("body").append("div"); 
+      var main = d3.select("body").append("div");
+
+      // create donut chart div
+      var donut = d3.select("body").append("div"); 
 
       // Line chart dimensions
       var margin = {top: 20, right: 220, bottom: 30, left: 50};
       var width = 900 - margin.left - margin.right;
       var height = 500 - margin.top - margin.bottom;
 
+      // Donut chart dimensions
+      var dMargin = {top: 20, right: 220, bottom: 30, left: 50};
+      var dwidth = (900 - margin.left - margin.right)/2;
+      var dheight = (500 - margin.top - margin.bottom)/2;
+
       // Line chart content settings 
-      //var defaultState = "AL"   /// Change to default year
-      var defaultYear = "2011";
+      var defaultState = "AL"   /// Change to default year
       var defaultCategory = "GEN";
 
       // Create dropdown
@@ -67,7 +74,7 @@
       var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom")  
-        .ticks(51)
+        .ticks(5)
         .tickFormat(d3.format("d")); 
       var yAxis = d3.svg.axis()
         .scale(y)
@@ -77,35 +84,40 @@
       // Configure the line 
       var line = d3.svg.line()
         .interpolate("basis")
-        .x(function(d) { return x(d.YearStart); }) // change to state?
+        .x(function(d) { return x(d.YearStart); }) 
         .y(function(d) { return y(d.Data_Value); });
+
+      // Add donut svg to canvas
+      var donutChartSvg = d3.select("body")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
       // Event handler for the selecting an item from the category dropdown
       function onDropdownChange() {  
         // Delete the old chart
         lineChartSvg.selectAll("*").remove();
+        donutChartSvg.selectAll("*").remove();
 
         // Get the behavior selected and process it
-        var selection = d3.select("#dropdown").node().value; 
-        defaultCategory = selection;  
+        var selection = d3.select("#dropdown").node().value;
+        defaultCategory = selection;
+        console.log(defaultCategory); 
 
-        // Render the new food group
-        d3.csv("obesity_survey_multiyear.csv", render); 
+        // Render the new category
+        //d3.csv("obesity_survey_multiyear.csv", render);
+        start();
       }
 
-      // Parses and groups data into the appropriate format
-      function parseData(year, category, data){
-      /* 
-      function parseData(state, category, data) {   <-- old function parameters
+      // Parses and groups data into the appropriate format  
+      function parseData(state, category, data) { 
         // Filter for state       
         filteredData = data.filter(function(d) {  
           return (d.LocationAbbr == state) && (d.StratificationCategoryId1 == category)  
         });  
-      */
-        // Filter by year
-        filteredData = data.filter(function(d){
-          return (d.YearStart == year) && (d.StratificationCategoryId1 == category)
-          });
 
         // Group by stratification IDs 
         groupedData = d3.nest().key(function(d){  
@@ -117,7 +129,8 @@
 
       function getStates(data){
           var states = [51];
-          for (var i = 0; i < 52; i++){
+          for (var i = 0; i < 52; i++)
+          {
             states[i] = data[i].LocationAbbr;
           }
           return states;
@@ -144,34 +157,33 @@
       // Render and create the chart
       function render(data, states){   
         // Parse and format data
-        //var parsedData = parseData(defaultState, defaultCategory, data);
-        var parsedData = parseData(defaultYear, defaultCategory, data);
+        console.log("reding category data " + defaultCategory);
+        var parsedData = parseData(defaultState, defaultCategory, data);
 
         // Set the domain for x, y and z 
         color.domain(parsedData.map(function(d){ d.key }));
-        //x.domain([2011, 2015]);
-        x.domain(states);
+        
+        x.domain([2011, 2015]);
         y.domain([ 
           d3.min(parsedData, function(c) { return d3.min(c.values, function(v) { return +v.Data_Value; }); }),
           d3.max(parsedData, function(c) { return d3.max(c.values, function(v) { return +v.Data_Value; }); })
         ]);  
-        //y.domain([ 0, 100 ]);
 
         // Create x-axis
         lineChartSvg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
-
+          
         // Create y-axis
         lineChartSvg.append("g")
           .attr("class", "y axis")
           .call(yAxis)
           .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
+          //.attr("transform", "rotate(-90)")
+          .attr("y", 0)
           .attr("dy", ".71em")
-          .style("text-anchor", "end")
+          .style("text-anchor", "top")
           .text("Obesity (%)");
 
         // Load data
@@ -194,9 +206,32 @@
           .attr("dy", ".35em")
           .attr("class", "series-label")
           .text(function(d) { return d.key; });
-      }  
 
-      // get the state abbr for the x axis
+
+          // load data into the donut chart
+           // Find data for each state's fave cereal and get the cereal nutritional facts
+          d3.csv("favorite_cereal.csv", function(fData) {
+            d3.csv("cereal.csv", function(cData) {
+
+            for (var i = 0; i < fData.length; i++){
+              for (var j = 0; j < cData.length; j++){
+                 // grab state name
+                var stateCereal = fData[i].LocationDesc;
+                // grab cereal name
+                var cerealName = fData[i].Favourite;
+                console.log("state: " + stateCereal + " Favourite: " + cerealName);
+                
+                // grab cereal info if it matches favourite
+                if (fData[i].Favourite == cData[j].Brand){
+                  console.log(cData[j]);
+                  break;
+                }
+
+              }
+            }
+            });
+      }); 
+      }
      
 
       // Starting method. Read the csv
@@ -213,10 +248,13 @@
             .attr("value",function(d){return d;}); // TODO: Get full names for strat cat IDs
 
           render(data, states);
-        });  
+          //makeDonut(data);
+        }); 
       }
+
+      start(); 
   
-        start();
+        
 
     </script>
   </body>
