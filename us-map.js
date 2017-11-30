@@ -1,54 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-  <head>
-    <h2>Obesity Rates in the US</h2>
-    <meta charset="utf-8">
-    <title>Cereal Obesity Poverty</title>
-    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
-    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">     
-    <style>  
-
-      body { 
-        font-family: 'Raleway', sans-serif;
-      }  
-      
-      /* On mouse hover, lighten state color */
-      path:hover {
-        fill-opacity: .7;
-      }
-
-      /* Style for Custom Tooltip */
-      div.tooltip {   
-        position: absolute;           
-        text-align: center;           
-        width: 60px;                  
-        height: 28px;                 
-        padding: 2px;             
-        font: 12px sans-serif;        
-        background: white;   
-        border: 0px;      
-        border-radius: 8px;           
-        pointer-events: none;         
-      }
-              
-      /* Legend Font Style */
-      body {
-        font: 11px sans-serif;
-      }
-              
-      /* Legend Position Style */
-      .legend {
-        position:absolute;
-        left:800px;
-        top:350px;
-      } 
-
-    </style>
-  </head>
-  <body>
-    <script> 
-    
     //Width and height of map
     var width = 960;
     var height = 500;
@@ -61,8 +10,7 @@
     // Define path generator
     var geoPath = d3.geo.path()    // path generator that will convert GeoJSON to SVG paths
       .projection(projection);  // tell path generator to use albersUsa projection
-
-        
+  
     // Define linear scale for output
     var color = d3.scale.linear()
       .range(["#00FF00", "#7FFF00", "#FFFF00", "#FF6900", "#FF0000"]); 
@@ -156,17 +104,8 @@
             }
           }
 
-          // make a circle graph for the cereal macros (Fats, carbs, protein)
-          var calories;
-          var fats;
-          var carbs;
-          var prot;
-          var fatsPercent;
-          var carbsPercent;
-          var protPercent;
 
-
-          svg.selectAll("circle")
+/*          svg.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
@@ -198,7 +137,7 @@
                 div.transition()        
                    .duration(500)      
                    .style("opacity", 0);   
-            }); 
+            }); */
           })
         });  
                 
@@ -231,6 +170,4 @@
     function parseGeoLocation(data) { 
       // TODO: PARSE GEOLOCATION
     }
-    </script>
-  </body>
-</html>
+  

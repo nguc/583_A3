@@ -1,0 +1,102 @@
+ body { 
+        font-family: 'Raleway', sans-serif;
+      }  
+      
+      /* On mouse hover, lighten state color */
+      path:hover {
+        fill-opacity: .7;
+      }
+
+      /* Style for Custom Tooltip */
+      div.tooltip {   
+        position: absolute;           
+        text-align: center;           
+        width: 60px;                  
+        height: 28px;                 
+        padding: 2px;             
+        font: 12px sans-serif;        
+        background: white;   
+        border: 0px;      
+        border-radius: 8px;           
+        pointer-events: none;         
+      }
+              
+      /* Legend Font Style */
+      body {
+        font: 11px sans-serif;
+      }
+              
+      /* Legend Position Style */
+      .legend {
+        position:absolute;
+        left:800px;
+        top:350px;
+      } 
+
+svg {
+  font: 5px sans-serif;
+}
+
+.background path {
+  fill: none;
+  stroke: none;
+  stroke-width: 20px;
+  pointer-events: stroke;
+}
+
+.foreground path {
+  fill: none;
+  stroke-width: 2.5px;
+}
+
+.axis .title {
+  font-size: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis.string {
+  font-size: 2px;
+}
+
+.label {
+  -webkit-transition: fill 100ms linear;
+}
+
+.active .label:not(.inactive) {
+  font-weight: bold;
+  font-size: 6px;
+}
+
+.label.inactive {
+  fill: #ccc;
+}
+
+.foreground path.inactive {
+  stroke: #ccc;
+  stroke-opacity: .5;
+  stroke-width: 1px;
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
