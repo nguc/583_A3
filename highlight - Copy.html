@@ -3,7 +3,7 @@
 <title>Nutritional information of cereals</title>
 <style>
 svg {
-  font: 6px sans-serif;
+  font: 5px sans-serif;
 }
 
 .background path {
@@ -19,7 +19,7 @@ svg {
 }
 
 .axis .title {
-  font-size: 8px;
+  font-size: 6px;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -54,20 +54,31 @@ svg {
   stroke-width: 1px;
 }
 
-.SvgImage img{ 
-  width: 50%;
-  height: 50%; 
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 </style>
 <body>
-
+<div id="parallel-container" class="svg-container"></div>
 <script src="http://d3js.org/d3.v2.min.js"></script>
 <script>
 
 var margin = {top: 30, right: 40, bottom: 20, left: 200},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 900 - margin.left - margin.right,
+    height = 250 - margin.top - margin.bottom;
 
 // list of categories for each parallel line including type of data to plot
 var dimensions = [
@@ -153,9 +164,12 @@ var line = d3.svg.line()
 var yAxis = d3.svg.axis()
     .orient("left");
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+var svg = d3.select("div#parallel-container")
+    .append("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", " 0 0 900 250")
+    .classed("svg-content", true)
+    .attr("align", "bottom")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
