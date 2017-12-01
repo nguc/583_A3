@@ -1,21 +1,94 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Nutritional information of cereals</title>
+<style>
+svg {
+  font: 5px sans-serif;
+}
+
+.background path {
+  fill: none;
+  stroke: none;
+  stroke-width: 20px;
+  pointer-events: stroke;
+}
+
+.foreground path {
+  fill: none;
+  stroke-width: 2.5px;
+}
+
+.axis .title {
+  font-size: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis.string {
+  font-size: 2px;
+}
+
+.label {
+  -webkit-transition: fill 100ms linear;
+}
+
+.active .label:not(.inactive) {
+  font-weight: bold;
+  font-size: 6px;
+}
+
+.label.inactive {
+  fill: #ccc;
+}
+
+.foreground path.inactive {
+  stroke: #ccc;
+  stroke-opacity: .5;
+  stroke-width: 1px;
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+</style>
+<body>
+<div id="parallel-container" class="svg-container"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
 var margin = {top: 30, right: 40, bottom: 20, left: 200},
     width = 900 - margin.left - margin.right,
-    height = 250 - margin.top - margin.bottom;
+    height = 500 - margin.top - margin.bottom;
 
 // list of categories for each parallel line including type of data to plot
 var dimensions = [
   {
     name: "Brand",
-    scale: d3.scale.ordinal().rangePoints([0, height]),
+    scale: d3.scale.ordinal().rangePoints([height, 0]),
     type: "string"
   },
   {
-    name: "% from sugar",
-    scale: d3.scale.linear().range([0, height]),
-    type: "number"
-  },
-  {
-    name: "% from fat",
+    name: "Cups",
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
@@ -25,17 +98,27 @@ var dimensions = [
     type: "number"
   },
   {
+    name: "% from sugar",
+    scale: d3.scale.linear().range([height, 0]),
+    type: "number"
+  },
+  {
+    name: "% from fat",
+    scale: d3.scale.linear().range([height, 0]),
+    type: "number"
+  },
+  {
     name: "Carbo",
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
   {
-    name: "Cups",
+    name: "Fat",
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
   {
-    name: "Fat",
+    name: "Protein",
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
@@ -46,16 +129,6 @@ var dimensions = [
   },
   {
     name: "Potassium",
-    scale: d3.scale.linear().range([height, 0]),
-    type: "number"
-  },
-  {
-    name: "Protein",
-    scale: d3.scale.linear().range([height, 0]),
-    type: "number"
-  },
-    {
-    name: "Rating",
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
@@ -74,6 +147,11 @@ var dimensions = [
     scale: d3.scale.linear().range([height, 0]),
     type: "number"
   },
+      {
+    name: "Rating",
+    scale: d3.scale.linear().range([height, 0]),
+    type: "number"
+  }
 ];
 
 var x = d3.scale.ordinal()
@@ -89,7 +167,7 @@ var yAxis = d3.svg.axis()
 var svg = d3.select("div#parallel-container")
     .append("svg")
     .attr("preserveAspectRatio", "xMinYMin meet")
-    .attr("viewBox", " 0 0 960 500")
+    .attr("viewBox", " 0 0 900 500")
     .classed("svg-content", true)
     .attr("align", "bottom")
   .append("g")
@@ -103,7 +181,7 @@ var dimension = svg.selectAll(".dimension")
     .attr("transform", function(d) { return "translate(" + x(d.name) + ")"; });
 
 // load in the data
-d3.csv("cereal2.csv", function(data) {
+d3.csv("cereals.csv", function(data) {
   dimensions.forEach(function(dimension) {
     dimension.scale.domain(dimension.type === "number"
         ? d3.extent(data, function(d) { return +d[dimension.name]; })
@@ -190,3 +268,5 @@ function draw(d) {
     return [x(dimension.name), dimension.scale(d[dimension.name])];
   }));
 }
+
+</script>

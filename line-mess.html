@@ -30,38 +30,27 @@
     </style>
   </head>
   <body>
-    <script> 
+    <svg id="gender"></svg>
+    <svg id="income"></svg>
+    <svg id="age"></svg>
+    <svg id="education"></svg>
+    <svg id="race"></svg>
+    <svg id="overall"></svg>
+  </body>
+    <script>
+     var stratifications = [ "Gender", "Income", "Age" , "Education", "Race" ,"Overall"];
+      
+     var  margin = {top: 30, right: 20, bottom: 30, left: 50},
+          width = 350 - margin.left - margin.right,
+          height = 200 - margin.top - margin.bottom;
+      
       // Create main div
       var main = d3.select("body").append("div");
-
-      // create donut chart div
-      var donut = d3.select("body").append("div"); 
-
-      // Line chart dimensions
-      var margin = {top: 20, right: 220, bottom: 30, left: 50};
-      var width = 900 - margin.left - margin.right;
-      var height = 500 - margin.top - margin.bottom;
-
-      // Donut chart dimensions
-      var dMargin = {top: 20, right: 220, bottom: 30, left: 50};
-      var dwidth = (900 - margin.left - margin.right)/2;
-      var dheight = (500 - margin.top - margin.bottom)/2;
-
-      // Line chart content settings 
-      var defaultState = "AL"   /// Change to default year
-      var defaultCategory = "GEN";
 
       // Create dropdown
       var select = main.append('select')  
         .attr('id', 'dropdown')
         .on('change',onDropdownChange);
-
-      // Create line chart line chart SVG frame
-      var lineChartSvg = main.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       // Configure the x, y and z ranges 
       var x = d3.scale.linear()
@@ -87,38 +76,82 @@
         .x(function(d) { return x(d.YearStart); }) 
         .y(function(d) { return y(d.Data_Value); });
 
-      // Add donut svg to canvas
-      var donutChartSvg = d3.select("body")
-        .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      // Adding all 6 svgs to canvas
+      var gender = d3.select("#gender")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+       
+      var income = d3.select("#income")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      
+      var age = d3.select("#age")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      
+      var education = d3.select("#education")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+         
+      var race = d3.select("#race")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        
+      var overall = d3.select("#overall")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Line chart content settings 
+      var defaultState = "Alabama" 
+      // call the start function to create the graphs
+      start();
 
       // Event handler for the selecting an item from the category dropdown
       function onDropdownChange() {  
         // Delete the old chart
-        lineChartSvg.selectAll("*").remove();
-        donutChartSvg.selectAll("*").remove();
+        gender.selectAll("*").remove();
+        income.selectAll("*").remove();
+        age.selectAll("*").remove();
+        education.selectAll("*").remove();
+        race.selectAll("*").remove();
+        overall.selectAll("*").remove();
 
         // Get the behavior selected and process it
         var selection = d3.select("#dropdown").node().value;
-        defaultCategory = selection;
-        console.log(defaultCategory); 
-
-        // Render the new category
-        //d3.csv("obesity_survey_multiyear.csv", render);
+        defaultState = selection;
+        console.log("default state: " + defaultState); 
         start();
       }
 
       // Parses and groups data into the appropriate format  
       function parseData(state, category, data) { 
-        // Filter for state       
-        filteredData = data.filter(function(d) {  
+        // Filter for state    
+        filteredData = data.filter(function(d) { 
           return (d.LocationAbbr == state) && (d.StratificationCategoryId1 == category)  
         });  
-
         // Group by stratification IDs 
         groupedData = d3.nest().key(function(d){  
           return d.Stratification1  
@@ -127,39 +160,47 @@
         return groupedData;
       }
 
-      function getStates(data){
-          var states = [51];
+      function getStatesAbbr(data, state){
+          //var states = [51];
+          var abbr;
+          console.log("state: " + state);
           for (var i = 0; i < 52; i++)
           {
-            states[i] = data[i].LocationAbbr;
+            console.log("data[i].LocationDesc: " + data[i].LocationDesc);
+            if (state == data[i].LocationDesc){
+              abbr = data[i].LocationAbbr;
+              console.log("abbr = " + abbr);
+              break;
+            }
           }
-          return states;
+          console.log("new state abbr: " + abbr);
+          return abbr;
       }
 
       // Returns the full name for a stratification category ID
       function getCategoryName(id) { 
           switch(id) { 
-            case "GEN": 
-              return "Gender"; 
-            case "INC": 
-              return "Income"; 
-            case "AGEYR": 
-              return "Age" 
-            case "EDU": 
-              return "Education"; 
-            case "RACE": 
-              return "Race"; 
-            case "OVR": 
-              return "Overall";
+            case "Gender": 
+              return "GEN"; 
+            case "Income": 
+              return "INC"; 
+            case "Age": 
+              return "AGEYR" 
+            case "Education": 
+              return "EDU"; 
+            case "Race": 
+              return "RACE"; 
+            case "Overall": 
+              return "OVR";
           }
       }
 
       // Render and create the chart
-      function render(data, states){   
+      function render(data, catetory, svgID){   
         // Parse and format data
-        console.log("reding category data " + defaultCategory);
-        var parsedData = parseData(defaultState, defaultCategory, data);
-
+        var cat = getCategoryName(catetory);
+        var parsedData = parseData(defaultState, cat, data);
+        
         // Set the domain for x, y and z 
         color.domain(parsedData.map(function(d){ d.key }));
         
@@ -170,24 +211,20 @@
         ]);  
 
         // Create x-axis
-        lineChartSvg.append("g")
+        svgID.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
           
         // Create y-axis
-        lineChartSvg.append("g")
+        svgID.append("g")
           .attr("class", "y axis")
           .call(yAxis)
           .append("text")
-          //.attr("transform", "rotate(-90)")
-          .attr("y", 0)
-          .attr("dy", ".71em")
-          .style("text-anchor", "top")
           .text("Obesity (%)");
 
         // Load data
-        var strat = lineChartSvg.selectAll(".strat")
+        var strat = svgID.selectAll(".strat")
           .data(parsedData)
           .enter().append("g")
           .attr("class", "strat");
@@ -206,56 +243,37 @@
           .attr("dy", ".35em")
           .attr("class", "series-label")
           .text(function(d) { return d.key; });
-
-
-          // load data into the donut chart
-           // Find data for each state's fave cereal and get the cereal nutritional facts
-          d3.csv("favorite_cereal.csv", function(fData) {
-            d3.csv("cereal.csv", function(cData) {
-
-            for (var i = 0; i < fData.length; i++){
-              for (var j = 0; j < cData.length; j++){
-                 // grab state name
-                var stateCereal = fData[i].LocationDesc;
-                // grab cereal name
-                var cerealName = fData[i].Favourite;
-                console.log("state: " + stateCereal + " Favourite: " + cerealName);
-                
-                // grab cereal info if it matches favourite
-                if (fData[i].Favourite == cData[j].Brand){
-                  console.log(cData[j]);
-                  break;
-                }
-
-              }
-            }
-            });
-      }); 
       }
      
-
       // Starting method. Read the csv
       function start(){
+
         d3.csv("obesity_survey_multiyear.csv", function(data) {
           // get states abbr
-          var states = getStates(data); 
+          defaultState = getStatesAbbr(data, defaultState); 
+          //var categorys = getCategoryName(data);
+        
           // Populate dropdown
           d3.select("#dropdown").selectAll("option")
-            .data(d3.map(data, function(d){return d.StratificationCategoryId1;}).keys())
+            .data(d3.map(data, function(d){return d.LocationDesc;}).keys())
             .enter()
             .append("option")
-            .text(function(d){ return getCategoryName(d); })
-            .attr("value",function(d){return d;}); // TODO: Get full names for strat cat IDs
+            .text(function(d) { return d; })
+            .attr("value", function(d) { return d; });
 
-          render(data, states);
-          //makeDonut(data);
+            renderAll(data); 
         }); 
       }
 
-      start(); 
-  
-        
+      function renderAll(data){
+        render(data, stratifications[0], gender);
+          render(data, stratifications[1], income);
+          render(data, stratifications[2], age);
+          render(data, stratifications[3], education);
+          render(data, stratifications[4], race);
+          render(data, stratifications[5], overall);
+      }
 
     </script>
-  </body>
+ 
 </html>

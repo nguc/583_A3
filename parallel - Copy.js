@@ -1,81 +1,3 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<title>Nutritional information of cereals</title>
-<style>
-svg {
-  font: 5px sans-serif;
-}
-
-.background path {
-  fill: none;
-  stroke: none;
-  stroke-width: 20px;
-  pointer-events: stroke;
-}
-
-.foreground path {
-  fill: none;
-  stroke-width: 2.5px;
-}
-
-.axis .title {
-  font-size: 6px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.axis line,
-.axis path {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.axis.string {
-  font-size: 2px;
-}
-
-.label {
-  -webkit-transition: fill 100ms linear;
-}
-
-.active .label:not(.inactive) {
-  font-weight: bold;
-  font-size: 6px;
-}
-
-.label.inactive {
-  fill: #ccc;
-}
-
-.foreground path.inactive {
-  stroke: #ccc;
-  stroke-opacity: .5;
-  stroke-width: 1px;
-}
-
-.svg-container {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%;
-  vertical-align: top;
-  overflow: hidden;
-}
-
-.svg-content {
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-</style>
-<body>
-<div id="parallel-container" class="svg-container"></div>
-<script src="http://d3js.org/d3.v2.min.js"></script>
-<script>
-
 var margin = {top: 30, right: 40, bottom: 20, left: 200},
     width = 900 - margin.left - margin.right,
     height = 250 - margin.top - margin.bottom;
@@ -164,12 +86,13 @@ var line = d3.svg.line()
 var yAxis = d3.svg.axis()
     .orient("left");
 
-var svg = d3.select("div#parallel-container")
-    .append("svg")
-    .attr("preserveAspectRatio", "xMinYMin meet")
+var svg2 = d3.select("div#container").append("svg")
+    /*.attr("preserveAspectRatio", "xMinYMin meet")
     .attr("viewBox", " 0 0 900 250")
     .classed("svg-content", true)
-    .attr("align", "bottom")
+    .attr("align", "bottom")*/
+    .attr("width", width)
+    .attr("height", height)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -268,5 +191,3 @@ function draw(d) {
     return [x(dimension.name), dimension.scale(d[dimension.name])];
   }));
 }
-
-</script>

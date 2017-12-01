@@ -40,8 +40,8 @@
       var height = 500 - margin.top - margin.bottom;
 
       // Line chart content settings 
-      //var defaultState = "AL"   /// Change to default year
-      var defaultYear = "2011";
+      var defaultState = "AL"   /// Change to default year
+      //var defaultYear = "2011";
       var defaultCategory = "GEN";
 
       // Create dropdown
@@ -94,18 +94,13 @@
       }
 
       // Parses and groups data into the appropriate format
-      function parseData(year, category, data){
-      /* 
-      function parseData(state, category, data) {   <-- old function parameters
+     // function parseData(year, category, data){
+      
+      function parseData(state, category, data) { 
         // Filter for state       
         filteredData = data.filter(function(d) {  
           return (d.LocationAbbr == state) && (d.StratificationCategoryId1 == category)  
         });  
-      */
-        // Filter by year
-        filteredData = data.filter(function(d){
-          return (d.YearStart == year) && (d.StratificationCategoryId1 == category)
-          });
 
         // Group by stratification IDs 
         groupedData = d3.nest().key(function(d){  
@@ -145,7 +140,7 @@
       function render(data, states){   
         // Parse and format data
         //var parsedData = parseData(defaultState, defaultCategory, data);
-        var parsedData = parseData(defaultYear, defaultCategory, data);
+        var parsedData = parseData(defaultState, defaultCategory, data);
 
         // Set the domain for x, y and z 
         color.domain(parsedData.map(function(d){ d.key }));
