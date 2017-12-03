@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="uStates.js"></script> <!-- creates uStates. -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<style type="text/css">
+
+/* On mouse hover, lighten state color */
+path:hover {
+	fill-opacity: .7;
+}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+        
+/* Legend Font Style */
+body {
+	font: 11px sans-serif;
+}
+        
+/* Legend Position Style */
+.legend {
+	position:absolute;
+	left:900px;
+	top:550px;
+}
+.wrapper {
+    text-align: center;
+}
+
+.button {
+    position: absolute;
+    top: 50%;
+}
+
+
+</style>
+</head>
+<body>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+  <header>
+    <h1 align="center" >CPSC 583 Assignment 3</h1>
+	<h2 align="center" >Poverty Rates, Obesity Rates, and favorite cereals visualized</h2>
+	<p align="center">Click buttons below to see trends on map</p>
+
+  </header>
+  <div class="wrapper">
+	<button type="button" onclick="displayExercise()">Percentage of population that exercises</button>
+	<button type="button" onclick="obesityPercent()">Percentage of people with obese weight</button>
+	<button type="button" onclick="povertyRate()">Poverty Rate</button>
+	</div>
+
+<script src="A3.js"></script>
+
+
+</body>
+</html>
