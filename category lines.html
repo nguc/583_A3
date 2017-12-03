@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cereal Obesity Poverty</title>
+    <h2 align="center"> Obesity rates per states over time by category</h2>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">     
+    <style>  
+
+      body { 
+        font-family: 'Raleway', sans-serif;
+      }  
+
+      .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+      } 
+
+      .series-label { 
+        font-size: 6pt;
+      }  
+      
+    </style>
+  </head>
+  <body>
+    <svg id="gender" width="650" height="400"></svg>
+    <svg id="income" width="650" height="400"></svg>
+    <svg id="age" width="650" height="400"></svg>
+    <svg id="education" width="650" height="400"></svg>
+    <svg id="race" width="650" height="400"></svg>
+    <svg id="overall" width="650" height="400"></svg>
+  </body>
+
+
+    <script>
+
+    // list of categories
+    var stratifications = [ "Gender", "Income", "Age" , "Education", "Race" ,"Overall"];
+    
+    // size of each svg  
+    var  margin = {top: 15, right: 20, bottom: 50, left: 50},
+          width = 500;
+          height = 300;
+    
+
+    // Create main div
+    var main = d3.select("body")
+      .append("div");
+
+    // Create dropdown
+    var select = main.append('select')  
+      .attr('id', 'dropdown')
+      .on('change',onDropdownChange);
+    
+
+    // Configure the x, y and z ranges 
+    var x = d3.scale.linear()
+      .range([0, width]);
+    var y = d3.scale.linear()
+      .range([height, 0]);
+    var color = d3.scale.category10(); 
+
+    // Configure the x and y axis 
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")  
+      .ticks(5)
+      .tickFormat(d3.format("d"));
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .tickFormat(d3.format("d"))
+      .orient("left"); 
+
+
+    // Configure the line 
+    var line = d3.svg.line()
+      .interpolate("basis")
+      .x(function(d) { return x(d.YearStart); }) 
+      .y(function(d) { return y(d.Data_Value); });
+
+
+    // Adding all 6 svgs to canvas
+    var gender = d3.select("#gender")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+     
+    var income = d3.select("#income")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    
+    var age = d3.select("#age")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    
+    var education = d3.select("#education")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+       
+    var race = d3.select("#race")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      
+    var overall = d3.select("#overall")
+        .append("svg")
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Line chart content settings 
+    var defaultState = "Alabama" 
+
+    // call the start function to create the graphs
+    start();
+
+
+    /* ************************* Functions ************************* */
+
+
+    // Event handler for the selecting an item from the category dropdown
+    function onDropdownChange() {  
+      // Delete the old chart
+      gender.selectAll("*").remove();
+      income.selectAll("*").remove();
+      age.selectAll("*").remove();
+      education.selectAll("*").remove();
+      race.selectAll("*").remove();
+      overall.selectAll("*").remove();
+
+      // Get the behavior selected and process it
+      var selection = d3.select("#dropdown").node().value;
+      defaultState = selection;
+      console.log("default state: " + defaultState); 
+      start();
+    }
+
+
+    // Parses and groups data into the appropriate format  
+    function parseData(state, category, data) { 
+      // Filter for state    
+      filteredData = data.filter(function(d) { 
+        return (d.LocationAbbr == state) && (d.StratificationCategoryId1 == category)  
+      });  
+      // Group by stratification IDs 
+      groupedData = d3.nest().key(function(d){  
+        return d.Stratification1  
+      }).entries(filteredData);
+
+      return groupedData;
+    }
+
+    // Parses and returns the abbreviation of the state
+    function getStatesAbbr(data, state){
+        var abbr;
+        
+        for (var i = 0; i < 52; i++)
+        {
+          console.log("data[i].LocationDesc: " + data[i].LocationDesc);
+          // if state found stop looping and return value
+          if (state == data[i].LocationDesc){
+            abbr = data[i].LocationAbbr;
+            break;
+          }
+        }
+        return abbr;
+    }
+
+    // Returns the full name for a stratification category ID
+    function getCategoryName(id) { 
+        switch(id) { 
+          case "Gender": 
+            return "GEN"; 
+          case "Income": 
+            return "INC"; 
+          case "Age": 
+            return "AGEYR" 
+          case "Education": 
+            return "EDU"; 
+          case "Race": 
+            return "RACE"; 
+          case "Overall": 
+            return "OVR";
+        }
+    }
+
+    // Returns the title for the appropriate graph
+    function getTitle(id){
+      console.log("id = " + id);
+       switch(id) { 
+          case "Gender": 
+            return "Obesity rate by gender"; 
+          case "Income": 
+            return "Obesity rate by income"; 
+          case "Age": 
+            return "Obesity rate by age" 
+          case "Education": 
+            return "Obesity rate by education"; 
+          case "Race": 
+            return "Obesity rate by race"; 
+          case "Overall": 
+            return "Overall obesity rate";
+        }
+    }
+
+    // Render and create the chart
+    function render(data, catetory, svgID){   
+      // Parse and format data
+      var cat = getCategoryName(catetory);
+      var parsedData = parseData(defaultState, cat, data);
+      
+      // Set the domain for x, y and z 
+      color.domain(parsedData.map(function(d){ d.key }));
+      x.domain([2011, 2015]);
+      y.domain([
+        d3.min(parsedData, function(c) { return d3.min(c.values, function(v) { return +v.Data_Value; }); }),
+        d3.max(parsedData, function(c) { return d3.max(c.values, function(v) { return +v.Data_Value; }); })
+      ]);  
+
+      // add title to graph
+      var graphTitle = getTitle(catetory);
+      console.log(graphTitle);
+      svgID.append("g").append("text")
+        .attr("x", (width / 2))             
+        .attr("text-anchor", "middle")  
+        .style("font-weight", "bold") 
+        .style("text-decoration", "underline")  
+        .text(graphTitle);
+
+      // Create x-axis
+      svgID.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .append("text")
+          .attr("x", (width/2.8))          
+          .style("font-size", "10px")
+          .attr("y",30)
+          .text("(year)");
+        
+      // Create y-axis
+      svgID.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+          .style("font-size", "10px")
+          .attr("x", -30)
+          .attr("y", -5)
+          .text("Obesity (%)");
+
+      // Load data
+      var strat = svgID.selectAll(".strat")
+        .data(parsedData)
+        .enter().append("g")
+        .attr("class", "strat");
+
+      // Create lines
+      strat.append("path")
+        .attr("class", "line")
+        .attr("d", function(d) { return line(d.values); })
+        .style("stroke", function(d) { return color(d.key); });
+
+      // Add labels to each line
+      strat.append("text")
+        .datum(function(d) { return { key: d.key, value: d.values[d.values.length - 1]}; })
+        .attr("transform", function(d) { return "translate(" + x(d.value.YearStart) + "," + y(d.value.Data_Value) + ")"; })
+        //.attr("x", 3)
+        //.attr("dy", ".35em")
+        .attr("class", "series-label")
+        .text(function(d) { return d.key; });
+    }
+   
+
+  // renders the data and createsa chart for each category for one state
+    function renderAll(data){
+      render(data, stratifications[0], gender);
+      render(data, stratifications[1], income);
+      render(data, stratifications[2], age);
+      render(data, stratifications[3], education);
+      render(data, stratifications[4], race);
+      render(data, stratifications[5], overall);
+    }
+
+    // Starting method. Read the csv
+    function start(){
+
+      d3.csv("obesity_survey_multiyear.csv", function(data) {
+        // get states abbr
+        defaultState = getStatesAbbr(data, defaultState); 
+      
+        // Populate dropdown
+        d3.select("#dropdown").selectAll("option")
+          .data(d3.map(data, function(d){return d.LocationDesc;}).keys())
+          .enter()
+          .append("option")
+          .text(function(d) { return d; })
+          .attr("value", function(d) { return d; });
+
+          renderAll(data); 
+    });
+  }
+
+  </script>
+ 
+</html>
